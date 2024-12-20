@@ -1,4 +1,4 @@
-import { App, Plugin, PluginSettingTab, Setting, Notice, requestUrl } from 'obsidian';
+import { App, Plugin, PluginSettingTab, Setting, Notice, requestUrl, Menu, TFolder } from 'obsidian';
 import { Translations } from './Translations';
 
 export interface DomainFolderMapping {
@@ -204,22 +204,18 @@ export class SettingsTab extends PluginSettingTab {
                return dropdown;
             })
             // Champ de saisie du dossier avec son label
-            .addSearch(search => {
-               const container = createEl('div', { cls: 'folder-container' });
-               
-               const label = container.createEl('span', { 
-                  text: this.translations.t('settings.folder'),
-                  cls: 'folder-label'
-               });
-               
-               search.setPlaceholder(this.translations.t('settings.folderPlaceholder'))
-                  .setValue(mapping.folder)
-                  .onChange(value => {
-                     this.settings.domainFolderMappings[index].folder = value;
-                  });
-               
-               return search;
-            })
+            .addButton(button => button
+               .setButtonText(mapping.folder || this.translations.t('settings.folder'))
+               .onClick((e: MouseEvent) => {
+                  // Créer le menu de sélection principal
+                  const menu = new Menu();
+                  
+                  // Construire la hiérarchie des dossiers à partir de la racine
+                  this.buildFolderMenu(menu, this.app.vault.getRoot(), index);
+
+                  // Afficher le menu à la position du clic
+                  menu.showAtMouseEvent(e);
+               }))
             // Boutons d'action
             .addButton(button => button
                .setIcon('checkmark')
@@ -269,5 +265,99 @@ export class SettingsTab extends PluginSettingTab {
       if (this.settings.dubApiKey && this.domains.length === 1) {
          this.loadDomains();
       }
+   }
+
+   // Construire le menu hiérarchique des dossiers
+   private buildFolderMenu(menu: Menu, folder: TFolder, mappingIndex: number, level: number = 0) {
+      const subFolders = folder.children.filter((child): child is TFolder => child instanceof TFolder);
+      
+      subFolders.forEach(subFolder => {
+         const hasChildren = subFolder.children.some(child => child instanceof TFolder);
+         
+         if (hasChildren) {
+            // Pour les dossiers avec des enfants, créer un sous-menu
+            menu.addItem(item => {
+               const titleEl = createSpan({ cls: 'menu-item-title' });
+               titleEl.appendText(subFolder.name);
+               titleEl.appendChild(createSpan({ cls: 'menu-item-arrow', text: ' →' }));
+
+               item.dom.querySelector('.menu-item-title')?.replaceWith(titleEl);
+               item.setIcon('folder');
+
+               // Créer le sous-menu
+               const subMenu = new Menu();
+               this.buildFolderMenu(subMenu, subFolder, mappingIndex, level + 1);
+
+               // Configurer l'événement de survol
+               const itemDom = (item as any).dom as HTMLElement;
+               if (itemDom) {
+                  let isOverItem = false;
+                  let isOverMenu = false;
+                  let hideTimeout: NodeJS.Timeout;
+
+                  const showSubMenu = () => {
+                     const rect = itemDom.getBoundingClientRect();
+                     subMenu.showAtPosition({
+                        x: rect.right,
+                        y: rect.top
+                     });
+                  };
+
+                  const hideSubMenu = () => {
+                     hideTimeout = setTimeout(() => {
+                        if (!isOverItem && !isOverMenu) {
+                           subMenu.hide();
+                        }
+                     }, 100);
+                  };
+
+                  itemDom.addEventListener('mouseenter', () => {
+                     isOverItem = true;
+                     if (hideTimeout) clearTimeout(hideTimeout);
+                     showSubMenu();
+                  });
+
+                  itemDom.addEventListener('mouseleave', () => {
+                     isOverItem = false;
+                     hideSubMenu();
+                  });
+
+                  // Gérer le survol du sous-menu lui-même
+                  const subMenuEl = (subMenu as any).dom;
+                  if (subMenuEl) {
+                     subMenuEl.addEventListener('mouseenter', () => {
+                        isOverMenu = true;
+                        if (hideTimeout) clearTimeout(hideTimeout);
+                     });
+
+                     subMenuEl.addEventListener('mouseleave', () => {
+                        isOverMenu = false;
+                        hideSubMenu();
+                     });
+                  }
+               }
+
+               // Ajouter également un gestionnaire de clic pour le dossier parent
+               item.onClick(async () => {
+                  this.settings.domainFolderMappings[mappingIndex].folder = subFolder.path;
+                  await Settings.saveSettings({ domainFolderMappings: this.settings.domainFolderMappings });
+                  new Notice(this.translations.t('notices.saved'));
+                  this.display();
+               });
+            });
+         } else {
+            // Pour les dossiers sans enfants, ajouter simplement un élément de menu
+            menu.addItem(item => {
+               item.setTitle(subFolder.name)
+                  .setIcon('folder')
+                  .onClick(async () => {
+                     this.settings.domainFolderMappings[mappingIndex].folder = subFolder.path;
+                     await Settings.saveSettings({ domainFolderMappings: this.settings.domainFolderMappings });
+                     new Notice(this.translations.t('notices.saved'));
+                     this.display();
+                  });
+            });
+         }
+      });
    }
 }
