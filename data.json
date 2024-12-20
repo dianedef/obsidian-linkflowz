@@ -1,0 +1,17 @@
+{
+  "language": "fr",
+  "dubApiKey": "dub_BdIvL3HX9ovppCEuEKuGKAsi",
+  "dubWorkspaceId": "web-inde",
+  "domainFolderMappings": [
+    {
+      "domain": "dub.co",
+      "folder": "RSS/Défaut"
+    },
+    {
+      "domain": "lien.transformemavie.com",
+      "folder": "RSS"
+    }
+  ],
+  "viewMode": "tab",
+  "dubCustomDomains": []
+}
