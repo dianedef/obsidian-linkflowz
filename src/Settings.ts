@@ -12,6 +12,8 @@ export interface DefaultSettings {
    dubWorkspaceId: string;
    domainFolderMappings: DomainFolderMapping[];
    viewMode: 'tab' | 'sidebar' | 'overlay';
+   cachedDomains: string[];
+   lastDomainsFetch: number;
 }
 
 export const DEFAULT_SETTINGS: DefaultSettings = {
@@ -19,12 +21,15 @@ export const DEFAULT_SETTINGS: DefaultSettings = {
    dubApiKey: '',
    dubWorkspaceId: '',
    domainFolderMappings: [],
-   viewMode: 'tab'
+   viewMode: 'tab',
+   cachedDomains: [],
+   lastDomainsFetch: 0
 };
 
 export class Settings {
    private static plugin: Plugin;
    private static settings: DefaultSettings;
+   private static readonly CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 heures en millisecondes
 
    static initialize(plugin: Plugin) {
       this.plugin = plugin;
@@ -41,21 +46,36 @@ export class Settings {
       await this.plugin.saveData(this.settings);
    }
 
+   static async getCachedDomains(apiKey: string, workspaceId?: string, forceRefresh: boolean = false): Promise<string[]> {
+      const now = Date.now();
+      const cacheAge = now - this.settings.lastDomainsFetch;
+
+      // Si le cache est valide et non vide, et qu'on ne force pas le rafraîchissement
+      if (!forceRefresh && cacheAge < this.CACHE_DURATION && this.settings.cachedDomains.length > 0) {
+         console.log('Using cached domains');
+         return this.settings.cachedDomains;
+      }
+
+      // Sinon, récupérer les domaines depuis l'API
+      console.log('Cache expired or empty or force refresh requested, fetching fresh domains');
+      const domains = await this.fetchDomains(apiKey, workspaceId);
+      
+      // Mettre à jour le cache
+      await this.saveSettings({
+         cachedDomains: domains,
+         lastDomainsFetch: now
+      });
+
+      return domains;
+   }
+
    static async fetchDomains(apiKey: string, workspaceId?: string): Promise<string[]> {
       try {
-         console.log('Fetching domains with API key:', apiKey.substring(0, 4) + '...');
-         if (workspaceId) {
-            console.log('Using workspace ID:', workspaceId);
-         }
-
-         const url = workspaceId 
-            ? `https://api.dub.co/domains?projectId=${workspaceId}`
-            : 'https://api.dub.co/domains';
-
-         console.log('Requesting URL:', url);
-
-         const response = await requestUrl({
-            url,
+         console.log('Fetching custom domains...');
+         
+         // Récupérer d'abord les domaines personnalisés
+         const customDomainsResponse = await requestUrl({
+            url: 'https://api.dub.co/domains',
             method: 'GET',
             headers: {
                'Authorization': `Bearer ${apiKey}`,
@@ -63,19 +83,36 @@ export class Settings {
             }
          });
 
-         console.log('Response status:', response.status);
+         // Récupérer les domaines par défaut disponibles
+         console.log('Fetching default domains...');
+         const defaultDomainsResponse = await requestUrl({
+            url: 'https://api.dub.co/domains/default',
+            method: 'GET',
+            headers: {
+               'Authorization': `Bearer ${apiKey}`,
+               'Accept': 'application/json'
+            }
+         });
 
-         if (response.status === 200) {
-            // La réponse est un tableau de domaines
-            const domains = Array.isArray(response.json) ? response.json : [];
-            console.log('Parsed domains:', domains);
-            
-            // Extraire les slugs des domaines
-            return domains.map((domain: any) => domain.slug);
+         let domains: string[] = [];
+
+         // Ajouter les domaines personnalisés s'ils existent
+         if (customDomainsResponse.status === 200) {
+            const customDomains = Array.isArray(customDomainsResponse.json) ? customDomainsResponse.json : [];
+            domains = domains.concat(customDomains.map((domain: any) => domain.slug));
          }
 
-         console.error('Error response:', response.json);
-         throw new Error(response.json?.error || `Failed to fetch domains (status: ${response.status})`);
+         // Ajouter les domaines par défaut
+         if (defaultDomainsResponse.status === 200) {
+            // La réponse est directement un tableau de strings pour les domaines par défaut
+            const defaultDomains = defaultDomainsResponse.json;
+            if (Array.isArray(defaultDomains)) {
+               domains = domains.concat(defaultDomains);
+            }
+         }
+
+         console.log('Available domains:', domains);
+         return domains;
       } catch (error) {
          console.error('Error fetching domains:', error);
          if (error instanceof Error) {
@@ -89,7 +126,7 @@ export class Settings {
 
 export class SettingsTab extends PluginSettingTab {
    settings: DefaultSettings;
-   private domains: string[] = ['dub.co'];
+   private domains: string[] = ['dub.sh'];
 
    constructor(
       app: App, 
@@ -104,10 +141,10 @@ export class SettingsTab extends PluginSettingTab {
    async loadDomains() {
       if (this.settings.dubApiKey) {
          try {
-            this.domains = ['dub.co', ...await Settings.fetchDomains(
+            this.domains = await Settings.getCachedDomains(
                this.settings.dubApiKey,
                this.settings.dubWorkspaceId
-            )];
+            );
             this.display();
          } catch (error) {
             new Notice(this.translations.t('notices.error').replace('{message}', error.message));
@@ -150,6 +187,23 @@ export class SettingsTab extends PluginSettingTab {
                if (this.settings.dubApiKey) {
                   await this.loadDomains();
                }
+            }));
+
+      // Bouton de rafraîchissement des domaines
+      new Setting(containerEl)
+         .setName(this.translations.t('settings.refreshDomains'))
+         .setDesc(this.translations.t('settings.refreshDomainsDesc'))
+         .addButton(button => button
+            .setButtonText(this.translations.t('settings.refresh'))
+            .onClick(async () => {
+               if (!this.settings.dubApiKey) {
+                  new Notice(this.translations.t('notices.error').replace('{message}', 'API key required'));
+                  return;
+               }
+               // Forcer le rafraîchissement en invalidant le cache
+               await Settings.saveSettings({ lastDomainsFetch: 0 });
+               await this.loadDomains();
+               new Notice(this.translations.t('notices.domainsRefreshed'));
             }));
 
       // Section Mappages Domaine-Dossier

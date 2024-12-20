@@ -9,6 +9,9 @@ export type TranslationKey =
    | 'modal.createShortLink'
    | 'modal.destinationUrl'
    | 'modal.destinationUrlDesc'
+   | 'modal.anchor'
+   | 'modal.anchorDesc'
+   | 'modal.anchorPlaceholder'
    | 'modal.customSlug'
    | 'modal.customSlugDesc'
    | 'modal.domain'
@@ -41,7 +44,11 @@ export type TranslationKey =
    | 'dashboard.error'
    | 'settings.domainAndFolder'
    | 'settings.folderPlaceholder'
-   | 'settings.save';
+   | 'settings.save'
+   | 'settings.refreshDomains'
+   | 'settings.refreshDomainsDesc'
+   | 'settings.refresh'
+   | 'notices.domainsRefreshed';
 
 export const translations: { [lang: string]: Record<TranslationKey, string> } = {
    en: {
@@ -55,6 +62,9 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'modal.createShortLink': 'Create Short Link',
       'modal.destinationUrl': 'Destination URL',
       'modal.destinationUrlDesc': 'The URL you want to shorten',
+      'modal.anchor': 'Link Text',
+      'modal.anchorDesc': 'The text that will be displayed for the link',
+      'modal.anchorPlaceholder': 'Click here',
       'modal.customSlug': 'Custom Slug',
       'modal.customSlugDesc': 'Custom part of the short URL (optional)',
       'modal.domain': 'Domain',
@@ -87,7 +97,11 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'dashboard.error': 'Error loading links: {message}',
       'settings.domainAndFolder': 'Domain and Folder Mapping',
       'settings.folderPlaceholder': 'Folder',
-      'settings.save': 'Save'
+      'settings.save': 'Save',
+      'settings.refreshDomains': 'Refresh Domains',
+      'settings.refreshDomainsDesc': 'Refresh the list of available domains from dub.co',
+      'settings.refresh': 'Refresh',
+      'notices.domainsRefreshed': '✅ Domains list refreshed'
    },
    fr: {
       // Notices
@@ -100,6 +114,9 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'modal.createShortLink': 'Créer un lien court',
       'modal.destinationUrl': 'URL de destination',
       'modal.destinationUrlDesc': 'L\'URL que vous souhaitez raccourcir',
+      'modal.anchor': 'Texte du lien',
+      'modal.anchorDesc': 'Le texte qui sera affiché pour le lien',
+      'modal.anchorPlaceholder': 'Cliquez ici',
       'modal.customSlug': 'Slug personnalisé',
       'modal.customSlugDesc': 'Partie personnalisée de l\'URL courte (optionnel)',
       'modal.domain': 'Domaine',
@@ -132,7 +149,11 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'dashboard.error': 'Erreur lors du chargement des liens : {message}',
       'settings.domainAndFolder': 'Association Domaine et Dossier',
       'settings.folderPlaceholder': 'Dossier',
-      'settings.save': 'Sauvegarder'
+      'settings.save': 'Sauvegarder',
+      'settings.refreshDomains': 'Rafraîchir les domaines',
+      'settings.refreshDomainsDesc': 'Actualiser la liste des domaines disponibles depuis dub.co',
+      'settings.refresh': 'Rafraîchir',
+      'notices.domainsRefreshed': '✅ Liste des domaines actualisée'
    }
 };
 

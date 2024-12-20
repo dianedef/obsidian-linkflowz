@@ -4,14 +4,22 @@
   "dubWorkspaceId": "web-inde",
   "domainFolderMappings": [
     {
-      "domain": "dub.co",
-      "folder": "RSS/Défaut"
-    },
-    {
       "domain": "lien.transformemavie.com",
       "folder": "RSS"
     }
   ],
   "viewMode": "tab",
+  "cachedDomains": [
+    "lien.transformemavie.com",
+    "dub.sh",
+    "chatg.pt",
+    "spti.fi",
+    "git.new",
+    "cal.link",
+    "amzn.id",
+    "ggl.link",
+    "fig.page"
+  ],
+  "lastDomainsFetch": 1734690423841,
   "dubCustomDomains": []
 }
