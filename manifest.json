@@ -1,0 +1,11 @@
+{
+	"id": "linkflowz",
+	"name": "LinkFlowz",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Créez facilement des liens courts pour vos notes avec dub.co. Idéal pour le marketing digital et le partage de liens.",
+	"author": "Shadow",
+	"authorUrl": "https://github.com/shadow/obsidian-linkflowz",
+	"isDesktopOnly": false,
+	"js": "main.js"
+}
