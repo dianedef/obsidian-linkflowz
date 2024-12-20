@@ -40,10 +40,16 @@ export class Hotkeys {
             const leaf = this.plugin.app.workspace.getLeavesOfType(VIEW_TYPE_DASHBOARD)[0];
             if (leaf) {
                if (!checking) {
-                  const searchInput = leaf.view.containerEl.querySelector('.linkflowz-search-input') as HTMLInputElement;
-                  if (searchInput) {
-                     searchInput.focus();
-                  }
+                  // Révéler d'abord la vue
+                  this.plugin.app.workspace.revealLeaf(leaf);
+                  
+                  // Puis focus sur la barre de recherche
+                  setTimeout(() => {
+                     const searchInput = leaf.view.containerEl.querySelector('.linkflowz-search-input') as HTMLInputElement;
+                     if (searchInput) {
+                        searchInput.focus();
+                     }
+                  }, 100); // Petit délai pour s'assurer que la vue est bien révélée
                }
                return true;
             }

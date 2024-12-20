@@ -11,7 +11,6 @@ interface ShortLink {
     url: string;
     shortUrl: string;
     domain: string;
-    createdAt: string;
     clicks: number;
 }
 
@@ -110,6 +109,9 @@ export class DashboardView extends ItemView {
             // Attendre la fin de l'animation
             await new Promise(resolve => setTimeout(resolve, 300));
             
+            // Attendre un petit délai supplémentaire
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
             content.empty();
             content.removeClass('fade-out');
             await this.loadLinks(content);
@@ -134,7 +136,7 @@ export class DashboardView extends ItemView {
                 throw new Error('API key required');
             }
 
-            // Appel à l'API dub.co
+            // Appel à l'API dub.co pour récupérer les liens
             const response = await requestUrl({
                 url: `https://api.dub.co/links${settings.dubWorkspaceId ? `?workspaceId=${settings.dubWorkspaceId}` : ''}`,
                 method: 'GET',
@@ -153,12 +155,12 @@ export class DashboardView extends ItemView {
                 throw new Error('Invalid API response format: expected array');
             }
 
+            // Mapper les liens avec les informations nécessaires
             this.links = links.map((link: any) => ({
                 id: link.id,
                 url: link.url,
                 shortUrl: link.shortLink,
                 domain: link.domain,
-                createdAt: link.createdAt,
                 clicks: link.clicks || 0
             }));
 
@@ -232,7 +234,7 @@ export class DashboardView extends ItemView {
         setIcon(copyButton, 'copy');
         copyButton.addEventListener('click', () => {
             navigator.clipboard.writeText(link.shortUrl);
-            new Notice('URL copied to clipboard');
+            new Notice(this.translations.t('notices.linkCopied'));
         });
 
         // Menu d'actions
@@ -248,15 +250,15 @@ export class DashboardView extends ItemView {
             const menu = new Menu();
             menu.addItem(item => item
                 .setIcon('pencil')
-                .setTitle('Edit')
+                .setTitle(this.translations.t('modal.edit'))
                 .onClick(() => {
-                    // TODO: Implémenter l'édition
+                    this.editLink(link);
                 }));
             menu.addItem(item => item
                 .setIcon('trash')
-                .setTitle('Delete')
-                .onClick(() => {
-                    // TODO: Implémenter la suppression
+                .setTitle(this.translations.t('modal.delete'))
+                .onClick(async () => {
+                    await this.deleteLink(link.id);
                 }));
             menu.showAtMouseEvent(event);
         });
@@ -275,10 +277,6 @@ export class DashboardView extends ItemView {
         stats.createEl('span', { 
             cls: 'linkflowz-stat',
             text: `${link.clicks} clicks`
-        });
-        stats.createEl('span', { 
-            cls: 'linkflowz-stat',
-            text: new Date(link.createdAt).toLocaleDateString()
         });
     }
 
@@ -321,6 +319,75 @@ export class DashboardView extends ItemView {
         }
 
         filtered.forEach(link => this.createLinkElement(content, link));
+    }
+
+    private async deleteLink(linkId: string) {
+        try {
+            const settings = await Settings.loadSettings();
+            if (!settings.dubApiKey) {
+                throw new Error('API key required');
+            }
+
+            const response = await requestUrl({
+                url: `https://api.dub.co/links/${linkId}`,
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${settings.dubApiKey}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(`API Error: ${response.status}`);
+            }
+
+            // Supprimer le lien localement
+            this.links = this.links.filter(link => link.id !== linkId);
+            
+            // Rafraîchir l'affichage
+            const content = this.containerEl.querySelector('.linkflowz-links-list');
+            if (content) {
+                content.addClass('fade-out');
+                await new Promise(resolve => setTimeout(resolve, 300));
+                content.empty();
+                
+                if (this.links.length === 0) {
+                    content.createEl('div', { 
+                        cls: 'linkflowz-empty-state',
+                        text: this.translations.t('dashboard.noLinks')
+                    });
+                } else {
+                    this.links.forEach(link => this.createLinkElement(content, link));
+                }
+                
+                content.removeClass('fade-out');
+            }
+
+            new Notice(this.translations.t('notices.linkDeleted'));
+
+        } catch (error) {
+            console.error('Erreur lors de la suppression du lien:', error);
+            new Notice(this.translations.t('notices.error').replace('{message}', error.message));
+        }
+    }
+
+    private async editLink(link: ShortLink) {
+        const settings = await Settings.loadSettings();
+        const modal = new CreateShortLinkModal(
+            this.app,
+            this.plugin,
+            settings,
+            this.translations,
+            {
+                url: link.url,
+                id: link.id,
+                domain: link.domain
+            }
+        );
+        modal.onClose = async () => {
+            await this.refresh();
+        };
+        modal.open();
     }
 }
 

@@ -200,6 +200,62 @@ styleEl.textContent = `
         width: 600px;
     }
 
+    .linkflowz-modal .setting-item {
+        border-top: none;
+        padding: 0.75rem 0;
+    }
+
+    .linkflowz-modal .setting-item-info {
+        font-size: 0.9em;
+    }
+
+    .linkflowz-modal .setting-item-control {
+        flex-grow: 0.7;
+    }
+
+    .linkflowz-modal input[type="text"],
+    .linkflowz-modal select {
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 4px;
+        border: 1px solid var(--background-modifier-border);
+        background-color: var(--background-primary);
+        color: var(--text-normal);
+    }
+
+    .linkflowz-modal .modal-button-container {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--background-modifier-border);
+    }
+
+    .linkflowz-modal .modal-button-container button {
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9em;
+        border: 1px solid var(--background-modifier-border);
+        background-color: var(--background-primary);
+        color: var(--text-normal);
+    }
+
+    .linkflowz-modal .modal-button-container button.mod-cta {
+        background-color: var(--interactive-accent);
+        color: var(--text-on-accent);
+        border: none;
+    }
+
+    .linkflowz-modal .modal-button-container button:hover {
+        background-color: var(--interactive-hover);
+    }
+
+    .linkflowz-modal .modal-button-container button.mod-cta:hover {
+        background-color: var(--interactive-accent-hover);
+    }
+
     /* Search Styles */
     .linkflowz-search {
         width: 100%;

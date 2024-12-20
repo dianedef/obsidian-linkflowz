@@ -5,6 +5,8 @@ export type TranslationKey =
    | 'notices.success'
    | 'notices.linkCreated'
    | 'notices.urlRequired'
+   | 'notices.linkDeleted'
+   | 'notices.linkCopied'
    // Modal
    | 'modal.createShortLink'
    | 'modal.destinationUrl'
@@ -17,6 +19,10 @@ export type TranslationKey =
    | 'modal.domain'
    | 'modal.domainDesc'
    | 'modal.create'
+   | 'modal.cancel'
+   | 'modal.edit'
+   | 'modal.delete'
+   | 'modal.editShortLink'
    // Settings dub.co
    | 'settings.dubApiKey'
    | 'settings.dubApiKeyDesc'
@@ -52,7 +58,10 @@ export type TranslationKey =
    | 'settings.refreshDomains'
    | 'settings.refreshDomainsDesc'
    | 'settings.refresh'
-   | 'notices.domainsRefreshed';
+   | 'notices.domainsRefreshed'
+   | 'dashboard.noSearchResults'
+   | 'dashboard.focusSearch'
+   | 'notices.linkUpdated';
 
 export const translations: { [lang: string]: Record<TranslationKey, string> } = {
    en: {
@@ -62,6 +71,8 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'notices.success': '✅ Operation successful',
       'notices.linkCreated': '✅ Short link created successfully',
       'notices.urlRequired': '❌ Destination URL is required',
+      'notices.linkDeleted': '✅ Short link deleted successfully',
+      'notices.linkCopied': '✅ Short link copied to clipboard',
       // Modal
       'modal.createShortLink': 'Create Short Link',
       'modal.destinationUrl': 'Destination URL',
@@ -74,6 +85,10 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'modal.domain': 'Domain',
       'modal.domainDesc': 'Choose the domain for your short link',
       'modal.create': 'Create',
+      'modal.cancel': 'Cancel',
+      'modal.edit': 'Edit',
+      'modal.delete': 'Delete',
+      'modal.editShortLink': 'Edit Short Link',
       // Settings dub.co
       'settings.dubApiKey': 'dub.co API Key',
       'settings.dubApiKeyDesc': 'Your dub.co API key for authentication',
@@ -109,7 +124,10 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'settings.refreshDomains': 'Refresh Domains',
       'settings.refreshDomainsDesc': 'Refresh the list of available domains from dub.co',
       'settings.refresh': 'Refresh',
-      'notices.domainsRefreshed': '✅ Domains list refreshed'
+      'notices.domainsRefreshed': '✅ Domains list refreshed',
+      'dashboard.noSearchResults': 'No results found',
+      'dashboard.focusSearch': 'Focus search',
+      'notices.linkUpdated': '✅ Short link updated successfully'
    },
    fr: {
       // Notices
@@ -118,6 +136,8 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'notices.success': '✅ Opération réussie',
       'notices.linkCreated': '✅ Lien court créé avec succès',
       'notices.urlRequired': '❌ L\'URL de destination est requise',
+      'notices.linkDeleted': '✅ Lien court supprimé avec succès',
+      'notices.linkCopied': '✅ Lien court copié dans le presse-papier',
       // Modal
       'modal.createShortLink': 'Créer un lien court',
       'modal.destinationUrl': 'URL de destination',
@@ -130,6 +150,10 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'modal.domain': 'Domaine',
       'modal.domainDesc': 'Choisissez le domaine pour votre lien court',
       'modal.create': 'Créer',
+      'modal.cancel': 'Annuler',
+      'modal.edit': 'Modifier',
+      'modal.delete': 'Supprimer',
+      'modal.editShortLink': 'Modifier le lien court',
       // Settings dub.co
       'settings.dubApiKey': 'Clé API dub.co',
       'settings.dubApiKeyDesc': 'Votre clé API dub.co pour l\'authentification',
@@ -165,7 +189,10 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'settings.refreshDomains': 'Rafraîchir les domaines',
       'settings.refreshDomainsDesc': 'Actualiser la liste des domaines disponibles depuis dub.co',
       'settings.refresh': 'Rafraîchir',
-      'notices.domainsRefreshed': '✅ Liste des domaines actualisée'
+      'notices.domainsRefreshed': '✅ Liste des domaines actualisée',
+      'dashboard.noSearchResults': 'Aucun résultat trouvé',
+      'dashboard.focusSearch': 'Rechercher un lien',
+      'notices.linkUpdated': '✅ Lien court modifié avec succès'
    }
 };
 
