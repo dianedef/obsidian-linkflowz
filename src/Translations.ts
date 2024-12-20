@@ -42,6 +42,10 @@ export type TranslationKey =
    | 'dashboard.noLinks'
    | 'dashboard.loading'
    | 'dashboard.error'
+   | 'dashboard.refresh'
+   | 'dashboard.viewModeTab'
+   | 'dashboard.viewModeSidebar'
+   | 'dashboard.viewModePopup'
    | 'settings.domainAndFolder'
    | 'settings.folderPlaceholder'
    | 'settings.save'
@@ -95,6 +99,10 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'dashboard.noLinks': 'No short links created yet',
       'dashboard.loading': 'Loading your links...',
       'dashboard.error': 'Error loading links: {message}',
+      'dashboard.refresh': 'Refresh',
+      'dashboard.viewModeTab': 'Open in Tab',
+      'dashboard.viewModeSidebar': 'Open in Sidebar',
+      'dashboard.viewModePopup': 'Open as Popup',
       'settings.domainAndFolder': 'Domain and Folder Mapping',
       'settings.folderPlaceholder': 'Folder',
       'settings.save': 'Save',
@@ -147,6 +155,10 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'dashboard.noLinks': 'Aucun lien court créé pour le moment',
       'dashboard.loading': 'Chargement de vos liens...',
       'dashboard.error': 'Erreur lors du chargement des liens : {message}',
+      'dashboard.refresh': 'Rafraîchir',
+      'dashboard.viewModeTab': 'Ouvrir dans un onglet',
+      'dashboard.viewModeSidebar': 'Ouvrir dans la barre latérale',
+      'dashboard.viewModePopup': 'Ouvrir en popup',
       'settings.domainAndFolder': 'Association Domaine et Dossier',
       'settings.folderPlaceholder': 'Dossier',
       'settings.save': 'Sauvegarder',

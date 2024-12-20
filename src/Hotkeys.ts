@@ -2,6 +2,7 @@ import { Plugin, Notice } from 'obsidian';
 import { DefaultSettings } from './Settings';
 import { Translations } from './Translations';
 import { CreateShortLinkModal } from './ShortLinkModal';
+import { VIEW_TYPE_DASHBOARD } from './Dashboard';
 
 export class Hotkeys {
    constructor(
@@ -29,6 +30,26 @@ export class Hotkeys {
             ).open();
          },
          hotkeys: [{ modifiers: ["Ctrl", "Shift"], key: "l" }]
+      });
+
+      // Commande pour focus la barre de recherche
+      this.plugin.addCommand({
+         id: 'focus-search',
+         name: this.translations.t('dashboard.focusSearch'),
+         checkCallback: (checking: boolean) => {
+            const leaf = this.plugin.app.workspace.getLeavesOfType(VIEW_TYPE_DASHBOARD)[0];
+            if (leaf) {
+               if (!checking) {
+                  const searchInput = leaf.view.containerEl.querySelector('.linkflowz-search-input') as HTMLInputElement;
+                  if (searchInput) {
+                     searchInput.focus();
+                  }
+               }
+               return true;
+            }
+            return false;
+         },
+         hotkeys: [{ modifiers: ["Ctrl"], key: "k" }]
       });
    }
 }

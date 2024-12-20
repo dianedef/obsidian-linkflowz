@@ -1,10 +1,11 @@
-import { Plugin } from 'obsidian';
+import { Plugin, Menu, Notice, WorkspaceLeaf, TFile } from 'obsidian';
 import { Settings, SettingsTab, DEFAULT_SETTINGS, DefaultSettings } from './Settings';
 import { Translations } from './Translations';
+import { TViewMode } from './types';
 import { Hotkeys } from './Hotkeys';
 import { ViewMode } from './ViewMode';
 import { DashboardView, DashboardManager, VIEW_TYPE_DASHBOARD } from './Dashboard';
-import { registerStyles, unregisterStyles } from './styles';
+import { registerStyles, unregisterStyles } from './RegisterStyles';
 
 export default class LinkFlowz extends Plugin {
    settings!: DefaultSettings;
@@ -41,9 +42,63 @@ export default class LinkFlowz extends Plugin {
          // Initialisation du dashboard manager
          this.dashboardManager = new DashboardManager(this, this.translations);
 
-         // Ajout du bouton dans la barre latérale
-         this.addRibbonIcon('layout-dashboard', 'Open LinkFlowz Dashboard', () => {
-            this.dashboardManager.openDashboard(this.settings.viewMode);
+         // Ajout du bouton dans la barre latérale avec menu hover
+         const ribbonIconEl = this.addRibbonIcon(
+            'layout-dashboard',
+            this.translations.t('dashboard.title'),
+            async () => {
+               try {
+                  const mode = await Settings.getViewMode();
+                  await this.viewMode.setView(mode);
+               } catch (error) {
+                  console.error('[LinkFlowz]', error);
+                  new Notice(this.translations.t('notices.error'));
+               }
+            }
+         );
+
+         // Menu hover
+         this.registerDomEvent(ribbonIconEl, 'mouseenter', () => {
+            const menu = new Menu();
+
+            const createMenuItem = (title: string, icon: string, mode: TViewMode) => {
+               menu.addItem((item) => {
+                  item.setTitle(title)
+                     .setIcon(icon)
+                     .onClick(async () => {
+                        try {
+                           await this.viewMode.setView(mode);
+                           await Settings.saveSettings({ currentMode: mode });
+                           new Notice(this.translations.t('notices.success'));
+                        } catch (error) {
+                           console.error('[LinkFlowz]', error);
+                           new Notice(this.translations.t('notices.error'));
+                        }
+                     });
+               });
+            };
+
+            createMenuItem(this.translations.t('dashboard.viewModeTab'), "tab", "tab");
+            createMenuItem(this.translations.t('dashboard.viewModeSidebar'), "layout-sidebar-right", "sidebar");
+            createMenuItem(this.translations.t('dashboard.viewModePopup'), "layout-top", "overlay");
+
+            // Positionner le menu au-dessus de l'icône
+            const rect = ribbonIconEl.getBoundingClientRect();
+            menu.showAtPosition({ 
+               x: rect.left, 
+               y: rect.top
+            });
+
+            // Gérer la fermeture du menu
+            const closeMenu = (e: MouseEvent) => {
+               const target = e.relatedTarget as HTMLElement;
+               if (!target?.closest('.menu') && !target?.closest('.clickable-icon')) {
+                  menu.hide();
+                  document.removeEventListener('mouseover', closeMenu);
+               }
+            };
+
+            document.addEventListener('mouseover', closeMenu);
          });
       });
 
@@ -54,6 +109,25 @@ export default class LinkFlowz extends Plugin {
          settings,
          this.translations
       ));
+
+      // Écouter les modifications manuelles des notes
+      this.registerEvent(
+         this.app.vault.on('modify', async (file: TFile) => {
+            try {
+               const settings = await Settings.loadSettings();
+               if (file.path.startsWith(settings.notesFolder)) {
+                  // Rafraîchir la vue
+                  if (this.dashboard) {
+                     await this.dashboard.refresh();
+                  }
+               }
+            } catch (error) {
+               console.error('[LinkFlowz] Erreur lors du rafraîchissement:', error);
+            }
+         })
+      );
+
+      registerStyles();
    }
 
    private loadLanguage(): void {
