@@ -4,6 +4,7 @@ import { Translations } from './Translations';
 import { Hotkeys } from './Hotkeys';
 import { ViewMode } from './ViewMode';
 import { DashboardView, DashboardManager, VIEW_TYPE_DASHBOARD } from './Dashboard';
+import { registerStyles, unregisterStyles } from './styles';
 
 export default class LinkFlowz extends Plugin {
    settings!: DefaultSettings;
@@ -18,6 +19,9 @@ export default class LinkFlowz extends Plugin {
       const settings = await Settings.loadSettings();
       this.settings = settings;
       this.loadLanguage();
+
+      // Enregistrer les styles CSS
+      registerStyles();
 
       // Initialisation des hotkeys
       this.hotkeys = new Hotkeys(this, this.settings, this.translations);
@@ -58,6 +62,9 @@ export default class LinkFlowz extends Plugin {
    }
 
    onunload() {
+      // Supprimer les styles
+      unregisterStyles();
+      
       // Fermer la vue si elle est ouverte
       const leaf = this.dashboardManager?.getCurrentLeaf();
       if (leaf) {

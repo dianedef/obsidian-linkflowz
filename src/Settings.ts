@@ -154,62 +154,14 @@ export class SettingsTab extends PluginSettingTab {
 
       // Section Mappages Domaine-Dossier
       containerEl.createEl('h2', { text: this.translations.t('settings.domainFolderMappings') });
-      containerEl.createEl('p', { text: this.translations.t('settings.domainFolderMappingsDesc') });
-
-      // Conteneur pour les mappages existants
-      const mappingsContainer = containerEl.createEl('div');
       
-      // Fonction pour créer un nouveau mapping
-      const createMappingElement = (mapping: DomainFolderMapping, index: number) => {
-         const mappingDiv = mappingsContainer.createEl('div', { cls: 'mapping-container' });
-         
-         // Sélection du domaine
-         new Setting(mappingDiv)
-            .setName(this.translations.t('settings.domain'))
-            .addDropdown(dropdown => {
-               this.domains.forEach(domain => {
-                  dropdown.addOption(domain, domain);
-               });
-               dropdown.setValue(mapping.domain);
-               dropdown.onChange(async (value) => {
-                  this.settings.domainFolderMappings[index].domain = value;
-                  await Settings.saveSettings({ domainFolderMappings: this.settings.domainFolderMappings });
-                  new Notice(this.translations.t('notices.saved'));
-               });
-            });
-
-         // Sélection du dossier
-         new Setting(mappingDiv)
-            .setName(this.translations.t('settings.folder'))
-            .addText(text => text
-               .setValue(mapping.folder)
-               .onChange(async (value) => {
-                  this.settings.domainFolderMappings[index].folder = value;
-                  await Settings.saveSettings({ domainFolderMappings: this.settings.domainFolderMappings });
-                  new Notice(this.translations.t('notices.saved'));
-               }));
-
-         // Bouton de suppression
-         new Setting(mappingDiv)
-            .addButton(button => button
-               .setButtonText(this.translations.t('settings.remove'))
-               .onClick(async () => {
-                  this.settings.domainFolderMappings.splice(index, 1);
-                  await Settings.saveSettings({ domainFolderMappings: this.settings.domainFolderMappings });
-                  new Notice(this.translations.t('notices.saved'));
-                  this.display();
-               }));
-      };
-
-      // Afficher les mappages existants
-      this.settings.domainFolderMappings.forEach((mapping, index) => {
-         createMappingElement(mapping, index);
-      });
-
-      // Bouton pour ajouter un nouveau mapping
-      new Setting(containerEl)
+      // Ligne de description avec le bouton d'ajout
+      const descriptionLine = new Setting(containerEl)
+         .setName(this.translations.t('settings.domainFolderMappingsDesc'))
          .addButton(button => button
+            .setIcon('plus')
             .setButtonText(this.translations.t('settings.addMapping'))
+            .setCta()
             .onClick(async () => {
                this.settings.domainFolderMappings.push({
                   domain: this.domains[0],
@@ -219,6 +171,82 @@ export class SettingsTab extends PluginSettingTab {
                new Notice(this.translations.t('notices.saved'));
                this.display();
             }));
+      
+      descriptionLine.settingEl.addClass('description-with-button');
+
+      // Conteneur pour les mappages existants
+      const mappingsContainer = containerEl.createEl('div');
+      
+      // Fonction pour créer un nouveau mapping
+      const createMappingElement = (mapping: DomainFolderMapping, index: number) => {
+         const mappingDiv = mappingsContainer.createEl('div', { cls: 'mapping-container' });
+         
+         // Conteneur pour la ligne de mapping
+         const mappingLine = new Setting(mappingDiv)
+            .setClass('compact-setting')
+            // Label "Domaine"
+            .addText(text => {
+               text.inputEl.addClass('label-text');
+               text.setValue(this.translations.t('settings.domain'));
+               text.setDisabled(true);
+               return text;
+            })
+            // Dropdown des domaines
+            .addDropdown(dropdown => {
+               this.domains.forEach(domain => {
+                  dropdown.addOption(domain, domain);
+               });
+               dropdown.setValue(mapping.domain);
+               dropdown.onChange(value => {
+                  this.settings.domainFolderMappings[index].domain = value;
+               });
+               dropdown.selectEl.addClass('domain-dropdown');
+               return dropdown;
+            })
+            // Champ de saisie du dossier avec son label
+            .addSearch(search => {
+               const container = createEl('div', { cls: 'folder-container' });
+               
+               const label = container.createEl('span', { 
+                  text: this.translations.t('settings.folder'),
+                  cls: 'folder-label'
+               });
+               
+               search.setPlaceholder(this.translations.t('settings.folderPlaceholder'))
+                  .setValue(mapping.folder)
+                  .onChange(value => {
+                     this.settings.domainFolderMappings[index].folder = value;
+                  });
+               
+               return search;
+            })
+            // Boutons d'action
+            .addButton(button => button
+               .setIcon('checkmark')
+               .setTooltip(this.translations.t('settings.save'))
+               .setCta()
+               .onClick(async () => {
+                  await Settings.saveSettings({ domainFolderMappings: this.settings.domainFolderMappings });
+                  new Notice(this.translations.t('notices.saved'));
+               }))
+            .addButton(button => button
+               .setIcon('trash')
+               .setTooltip(this.translations.t('settings.remove'))
+               .onClick(async () => {
+                  this.settings.domainFolderMappings.splice(index, 1);
+                  await Settings.saveSettings({ domainFolderMappings: this.settings.domainFolderMappings });
+                  new Notice(this.translations.t('notices.saved'));
+                  this.display();
+               }));
+
+         // Ajouter des styles pour aligner les éléments
+         mappingLine.settingEl.addClass('mapping-line');
+      };
+
+      // Afficher les mappages existants
+      this.settings.domainFolderMappings.forEach((mapping, index) => {
+         createMappingElement(mapping, index);
+      });
 
       // Section Mode d'affichage
       containerEl.createEl('h2', { text: this.translations.t('settings.viewMode') });

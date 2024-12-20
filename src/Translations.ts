@@ -38,7 +38,10 @@ export type TranslationKey =
    | 'dashboard.title'
    | 'dashboard.noLinks'
    | 'dashboard.loading'
-   | 'dashboard.error';
+   | 'dashboard.error'
+   | 'settings.domainAndFolder'
+   | 'settings.folderPlaceholder'
+   | 'settings.save';
 
 export const translations: { [lang: string]: Record<TranslationKey, string> } = {
    en: {
@@ -81,7 +84,10 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'dashboard.title': 'LinkFlowz Dashboard',
       'dashboard.noLinks': 'No short links created yet',
       'dashboard.loading': 'Loading your links...',
-      'dashboard.error': 'Error loading links: {message}'
+      'dashboard.error': 'Error loading links: {message}',
+      'settings.domainAndFolder': 'Domain and Folder Mapping',
+      'settings.folderPlaceholder': 'Folder',
+      'settings.save': 'Save'
    },
    fr: {
       // Notices
@@ -123,7 +129,10 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'dashboard.title': 'Tableau de bord LinkFlowz',
       'dashboard.noLinks': 'Aucun lien court créé pour le moment',
       'dashboard.loading': 'Chargement de vos liens...',
-      'dashboard.error': 'Erreur lors du chargement des liens : {message}'
+      'dashboard.error': 'Erreur lors du chargement des liens : {message}',
+      'settings.domainAndFolder': 'Association Domaine et Dossier',
+      'settings.folderPlaceholder': 'Dossier',
+      'settings.save': 'Sauvegarder'
    }
 };
 
