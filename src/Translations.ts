@@ -43,6 +43,10 @@ export type TranslationKey =
    | 'settings.tab'
    | 'settings.sidebar'
    | 'settings.overlay'
+   // Settings Appearance
+   | 'settings.appearance'
+   | 'settings.showLinkIcons'
+   | 'settings.showLinkIconsDesc'
    // Dashboard
    | 'dashboard.title'
    | 'dashboard.noLinks'
@@ -109,6 +113,10 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'settings.tab': 'New Tab',
       'settings.sidebar': 'Right Sidebar',
       'settings.overlay': 'Overlay',
+      // Settings Appearance
+      'settings.appearance': 'Appearance',
+      'settings.showLinkIcons': 'Show Link Icons',
+      'settings.showLinkIconsDesc': 'Display website favicons next to links using microlink.io',
       // Dashboard
       'dashboard.title': 'LinkFlowz Dashboard',
       'dashboard.noLinks': 'No short links created yet',
@@ -174,6 +182,10 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'settings.tab': 'Nouvel onglet',
       'settings.sidebar': 'Barre latérale',
       'settings.overlay': 'Superposition',
+      // Settings Appearance
+      'settings.appearance': 'Apparence',
+      'settings.showLinkIcons': 'Afficher les icônes des liens',
+      'settings.showLinkIconsDesc': 'Afficher les favicons des sites web à côté des liens via microlink.io',
       // Dashboard
       'dashboard.title': 'Tableau de bord LinkFlowz',
       'dashboard.noLinks': 'Aucun lien court créé pour le moment',

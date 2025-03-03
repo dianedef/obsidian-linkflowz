@@ -14,6 +14,7 @@ export interface DefaultSettings {
    viewMode: 'tab' | 'sidebar' | 'overlay';
    cachedDomains: string[];
    lastDomainsFetch: number;
+   showLinkIcons: boolean;
 }
 
 export const DEFAULT_SETTINGS: DefaultSettings = {
@@ -23,7 +24,8 @@ export const DEFAULT_SETTINGS: DefaultSettings = {
    domainFolderMappings: [],
    viewMode: 'tab',
    cachedDomains: [],
-   lastDomainsFetch: 0
+   lastDomainsFetch: 0,
+   showLinkIcons: true
 };
 
 export class Settings {
@@ -312,6 +314,20 @@ export class SettingsTab extends PluginSettingTab {
             .onChange(async (value: 'tab' | 'sidebar' | 'overlay') => {
                this.settings.viewMode = value;
                await Settings.saveSettings({ viewMode: value });
+               new Notice(this.translations.t('notices.saved'));
+            }));
+
+      // Section Apparence
+      containerEl.createEl('h2', { text: this.translations.t('settings.appearance') });
+
+      new Setting(containerEl)
+         .setName(this.translations.t('settings.showLinkIcons'))
+         .setDesc(this.translations.t('settings.showLinkIconsDesc'))
+         .addToggle(toggle => toggle
+            .setValue(this.settings.showLinkIcons)
+            .onChange(async (value) => {
+               this.settings.showLinkIcons = value;
+               await Settings.saveSettings({ showLinkIcons: value });
                new Notice(this.translations.t('notices.saved'));
             }));
 

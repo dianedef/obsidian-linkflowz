@@ -16,7 +16,7 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// obsidian---linkflowz/src/main.ts
+// obsidian-LinkFlowz/src/main.ts
 var main_exports = {};
 __export(main_exports, {
   default: () => LinkFlowz
@@ -24,7 +24,7 @@ __export(main_exports, {
 module.exports = __toCommonJS(main_exports);
 var import_obsidian8 = require("obsidian");
 
-// obsidian---linkflowz/src/Settings.ts
+// obsidian-LinkFlowz/src/Settings.ts
 var import_obsidian = require("obsidian");
 var DEFAULT_SETTINGS = {
   language: "fr",
@@ -293,7 +293,7 @@ var SettingsTab = class extends import_obsidian.PluginSettingTab {
   }
 };
 
-// obsidian---linkflowz/src/Translations.ts
+// obsidian-LinkFlowz/src/Translations.ts
 var translations = {
   en: {
     // Notices
@@ -439,13 +439,13 @@ var Translations = class {
   }
 };
 
-// obsidian---linkflowz/src/Hotkeys.ts
+// obsidian-LinkFlowz/src/Hotkeys.ts
 var import_obsidian6 = require("obsidian");
 
-// obsidian---linkflowz/src/ShortLinkModal.ts
+// obsidian-LinkFlowz/src/ShortLinkModal.ts
 var import_obsidian3 = require("obsidian");
 
-// obsidian---linkflowz/src/DomainValidations.ts
+// obsidian-LinkFlowz/src/DomainValidations.ts
 var import_obsidian2 = require("obsidian");
 var DOMAIN_VALIDATIONS = {
   "git.new": {
@@ -525,7 +525,7 @@ function validateDomainUrl(domain, url, translations2) {
   }
 }
 
-// obsidian---linkflowz/src/ShortLinkModal.ts
+// obsidian-LinkFlowz/src/ShortLinkModal.ts
 var CreateShortLinkModal = class extends import_obsidian3.Modal {
   constructor(app, plugin, settings, translations2, editData) {
     super(app);
@@ -731,7 +731,7 @@ var CreateShortLinkModal = class extends import_obsidian3.Modal {
   }
 };
 
-// obsidian---linkflowz/src/Dashboard.ts
+// obsidian-LinkFlowz/src/Dashboard.ts
 var import_obsidian4 = require("obsidian");
 var import_obsidian5 = require("obsidian");
 var VIEW_TYPE_DASHBOARD = "linkflowz-view";
@@ -1031,7 +1031,7 @@ var DashboardManager = class {
   }
 };
 
-// obsidian---linkflowz/src/Hotkeys.ts
+// obsidian-LinkFlowz/src/Hotkeys.ts
 var Hotkeys = class {
   constructor(plugin, settings, translations2) {
     this.plugin = plugin;
@@ -1080,7 +1080,7 @@ var Hotkeys = class {
   }
 };
 
-// obsidian---linkflowz/src/ViewMode.ts
+// obsidian-LinkFlowz/src/ViewMode.ts
 var import_obsidian7 = require("obsidian");
 var ViewMode = class extends import_obsidian7.Component {
   constructor(plugin) {
@@ -1172,7 +1172,7 @@ var ViewMode = class extends import_obsidian7.Component {
   }
 };
 
-// obsidian---linkflowz/src/RegisterStyles.ts
+// obsidian-LinkFlowz/src/RegisterStyles.ts
 function registerStyles() {
   const styleEl = document.createElement("style");
   styleEl.id = "linkflowz-styles";
@@ -1471,7 +1471,7 @@ function unregisterStyles() {
   }
 }
 
-// obsidian---linkflowz/src/main.ts
+// obsidian-LinkFlowz/src/main.ts
 var LinkFlowz = class extends import_obsidian8.Plugin {
   constructor() {
     super(...arguments);

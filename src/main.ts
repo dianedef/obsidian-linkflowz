@@ -1,4 +1,4 @@
-import { Plugin, Menu, Notice, WorkspaceLeaf, TFile } from 'obsidian';
+import { Plugin, Menu, Notice, WorkspaceLeaf, TFile, MarkdownView } from 'obsidian';
 import { Settings, SettingsTab, DEFAULT_SETTINGS, DefaultSettings } from './Settings';
 import { Translations } from './Translations';
 import { TViewMode } from './types';
@@ -6,6 +6,8 @@ import { Hotkeys } from './Hotkeys';
 import { ViewMode } from './ViewMode';
 import { DashboardView, DashboardManager, VIEW_TYPE_DASHBOARD } from './Dashboard';
 import { registerStyles, unregisterStyles } from './RegisterStyles';
+import { LinkIconHandler, LINK_ICON_STYLES } from './LinkIconWidget';
+import { ViewPlugin } from '@codemirror/view';
 
 export default class LinkFlowz extends Plugin {
    settings!: DefaultSettings;
@@ -13,6 +15,7 @@ export default class LinkFlowz extends Plugin {
    private hotkeys!: Hotkeys;
    private viewMode!: ViewMode;
    private dashboardManager!: DashboardManager;
+   private linkIconHandler!: LinkIconHandler;
 
    async onload() {
       // Initialisation des paramètres et traductions
@@ -23,6 +26,30 @@ export default class LinkFlowz extends Plugin {
 
       // Enregistrer les styles CSS
       registerStyles();
+      // Ajouter les styles des icônes
+      this.registerStyles();
+
+      // Initialisation du gestionnaire d'icônes
+      this.linkIconHandler = new LinkIconHandler(this);
+
+      // Extension CodeMirror pour les icônes de liens
+      this.registerEditorExtension(
+         ViewPlugin.fromClass(class {
+            constructor(private view: EditorView) {
+               this.update(view);
+            }
+
+            async update(view: EditorView, prevState?: EditorView) {
+               const mdView = app.workspace.getActiveViewOfType(MarkdownView);
+               if (mdView) {
+                  await this.linkIconHandler.update(view, settings);
+                  view.dispatch({
+                     effects: ViewPlugin.updateEffect.of(null)
+                  });
+               }
+            }
+         })
+      );
 
       // Initialisation des hotkeys
       this.hotkeys = new Hotkeys(this, this.settings, this.translations);
@@ -135,9 +162,20 @@ export default class LinkFlowz extends Plugin {
       this.translations.setLanguage(locale);
    }
 
+   private registerStyles() {
+      const styleEl = document.createElement('style');
+      styleEl.id = 'link-flowz-icons-styles';
+      styleEl.textContent = LINK_ICON_STYLES;
+      document.head.appendChild(styleEl);
+   }
+
    onunload() {
       // Supprimer les styles
       unregisterStyles();
+      const iconStyles = document.getElementById('link-flowz-icons-styles');
+      if (iconStyles) {
+         iconStyles.remove();
+      }
       
       // Fermer la vue si elle est ouverte
       const leaf = this.dashboardManager?.getCurrentLeaf();
